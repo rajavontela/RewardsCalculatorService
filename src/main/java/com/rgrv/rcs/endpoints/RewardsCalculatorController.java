@@ -1,6 +1,8 @@
 package com.rgrv.rcs.endpoints;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,15 +20,18 @@ public class RewardsCalculatorController {
 	private RewardsCalculatorServiceImpl rewardsCalculatorService;
 	
 	@GetMapping("/customer/{custId}/last3Months")
-	public ResponseWrapper getLastThreeMonthsRewardsGiven(@PathVariable Integer custId) {
+	public ResponseEntity<ResponseWrapper> getLastThreeMonthsRewardsGiven(@PathVariable Integer custId) {
+		ResponseEntity<ResponseWrapper> re = null;
 		ResponseWrapper response = new ResponseWrapper();
 		CalculatedRewardsResponse crr = rewardsCalculatorService.getLastThreeMonthsRewardsGiven(custId);
 		if(crr.getCustomerId()==null) {
 			response.setError(true);
 			response.setErrorMessage("Customer id provided is not found!");
+			re = ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 		}else {
 			response.setResult(crr);
+			re = ResponseEntity.status(HttpStatus.OK).body(response);
 		}
-		return response;
+		return re;
 	}
 }
